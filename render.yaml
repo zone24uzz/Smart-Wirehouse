@@ -3,20 +3,19 @@ services:
     name: smart-warehouse-control-api
     runtime: node
     plan: starter
+    rootDir: server
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
     disk:
       name: swc-database
-      mountPath: /opt/render/project/src/server/data
+      mountPath: /var/data
       sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: DATABASE_PATH
-        value: /opt/render/project/src/server/data/db.json
+        value: /var/data/db.json
       - key: JWT_SECRET
         generateValue: true
       - key: CLIENT_URL

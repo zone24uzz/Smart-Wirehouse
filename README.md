@@ -67,7 +67,11 @@ cd D:\smart-warehouse-control\server; npm test
 cd D:\smart-warehouse-control\client; npm run build
 ```
 
-Frontendni Vercelga `client/` root bilan joylang va `VITE_API_URL` ni HTTPS backend API manziliga sozlang. Express serverni Render/Railway/VPSga joylab, doimiy diskni ulang va `DATABASE_PATH` ni mount pathga yo'naltiring. **Vercel serverless fayl tizimi `db.json` uchun doimiy saqlash bermaydi**; JSON bazani serverless funksiyada ishlatmang. Ko'p foydalanuvchili production uchun PostgreSQL tavsiya qilinadi.
+Frontendni GitHub'dagi repodan Vercelga import qiling va **Root Directory** ni `client` qilib tanlang. Build command `npm run build`, Output Directory `dist`; Environment Variables ichida `VITE_API_URL=https://<render-api-domain>/api` kiriting.
+
+Backend uchun Render'da Blueprint sifatida repositoryni ulang. Root'tagi `render.yaml` Node web service'i `server/` root katalogidan build qiladi, `/api/health` health check o'rnatadi va doimiy diskni `/var/data` ga ulab `DATABASE_PATH=/var/data/db.json` ishlatadi. Birinchi ishga tushishda Render env sozlamalarida `CLIENT_URL` ni Vercel production HTTPS domeniga tenglang. Ixtiyoriy Telegram/Gemini uchun `TELEGRAM_BOT_TOKEN`, `TELEGRAM_MODE`, `TELEGRAM_WEBHOOK_URL`, `TELEGRAM_WEBHOOK_SECRET`, `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL` ni faqat Render Environment Variables'da kiriting; maxfiy kalitlarni Vercelga qo'ymang. Dastlabki demo bazani yaratish uchun Render Shell'da service root'dan `npm run seed` ni bir marta bajaring. Har deploy yoki restartda seed buyrug'ini build/start ichiga qo'shmang.
+
+**Vercel serverless fayl tizimi `db.json` uchun doimiy saqlash bermaydi**; JSON bazani Vercel'da ishlatmang. Render persistent diskdagi fayllargina restart va deploylar orasida saqlanadi; disk ulash uchun qo'llab-quvvatlanadigan pullik web-service plan kerak bo'lishi mumkin. Bir nechta backend instance bir xil JSON bazani xavfsiz boshqarmaydi; production jamoaviy ishlatishda PostgreSQL tavsiya qilinadi.
 
 ### Backup va ma'lumot yaxlitligi
 
