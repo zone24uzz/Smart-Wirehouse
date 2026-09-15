@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { config } from '../config/env.js';
+import { authenticate } from '../middleware/auth.js';
+import { readDb, mutateDb } from '../repositories/jsonRepository.js';
+import { audit } from '../services/audit.js';
+const router=Router();
+router.post('/login',async(req,res,next)=>{try{const {username,password}=z.object({username:z.string().min(1).max(80),password:z.string().min(1).max(200)}).parse(req.body);const db=await readDb();const user=db.users.find(u=>u.username.toLowerCase()===username.toLowerCase()&&u.active);if(!user||!await bcrypt.compare(password,user.passwordHash)){await mutateDb(d=>{audit(d,{...req,user:null},'auth.login_failed','user',user?.id||username,null,{username});});return res.status(401).json({success:false,message:'Login yoki parol notoʻgʻri',data:null,meta:{}});}const token=jwt.sign({sub:user.id,role:user.role},config.jwtSecret,{expiresIn:config.jwtExpiresIn});await mutateDb(d=>audit(d,{...req,user},'auth.login','user',user.id,null,{username:user.username}));res.json({success:true,message:'Xush kelibsiz',data:{token,user:{id:user.id,username:user.username,name:user.name,role:user.role}},meta:{}});}catch(e){next(e);}});
+router.get('/me',authenticate,(req,res)=>res.json({success:true,message:'Profil',data:{id:req.user.id,username:req.user.username,name:req.user.name,role:req.user.role,telegramId:req.user.telegramId||null},meta:{}}));
+router.post('/logout',authenticate,async(req,res)=>{await mutateDb(db=>audit(db,req,'auth.logout','user',req.user.id));res.json({success:true,message:'Sessiya yopildi',data:null,meta:{}});});
+export default router;

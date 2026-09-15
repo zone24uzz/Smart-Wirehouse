@@ -1,0 +1,1 @@
+export default {app:{name:'Smart Warehouse',subtitle:'Центр управления',search:'Поиск...',today:'Сегодня'},nav:{dashboard:'Обзор',orders:'Заявки',inventory:'Остатки',products:'Товары',supply:'Снабжение',transport:'Транспорт',shipments:'Отгрузки',ai:'AI помощник'}};

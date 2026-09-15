@@ -1,0 +1,4 @@
+import { v4 as uuid } from 'uuid';
+import { telegramNotify } from '../telegram/bot.js';
+export function audit(db, req, action, entityType, entityId, oldValue = null, newValue = null) { db.auditLogs.unshift({ id:uuid(), userId:req.user?.id || null, userName:req.user?.name || 'Tizim', action, entityType, entityId, oldValue, newValue, ip:req.ip, userAgent:req.get?.('user-agent') || '', source:req.source || 'web', createdAt:new Date().toISOString() }); }
+export function notify(db, roles, title, message, href = '/orders') { const users = db.users.filter(u => roles.includes(u.role) && u.active); for (const u of users) db.notifications.unshift({ id:uuid(), userId:u.id, title, message, href, readAt:null, createdAt:new Date().toISOString() }); telegramNotify(db,roles,`<b>${title}</b>\n${message}`).catch(e=>console.error('Telegram notification:',e.message)); }

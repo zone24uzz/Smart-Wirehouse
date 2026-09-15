@@ -1,0 +1,3 @@
+import { ZodError } from 'zod';
+export function errorHandler(err, req, res, next) { if (res.headersSent) return next(err); const status = err.status || (err instanceof ZodError ? 400 : 500); const message = err instanceof ZodError ? err.issues.map(x => x.message).join(', ') : (status === 500 && process.env.NODE_ENV === 'production' ? 'Serverda xatolik yuz berdi' : err.message); if (status >= 500) console.error(err); res.status(status).json({ success:false,message,data:null,meta:{} }); }
+export function notFoundHandler(req,res) { res.status(404).json({success:false,message:'API manzili topilmadi',data:null,meta:{}}); }

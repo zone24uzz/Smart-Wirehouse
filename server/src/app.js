@@ -1,0 +1,15 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { config } from './config/env.js';
+import authRoutes from './routes/auth.js';
+import apiRoutes from './routes/api.js';
+import { errorHandler,notFoundHandler } from './middleware/errors.js';
+import { processTelegramUpdate } from './telegram/bot.js';
+export const app=express();
+app.disable('x-powered-by');app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));app.use(cors({origin:config.clientUrl.split(',').map(x=>x.trim()),credentials:false}));app.use(express.json({limit:'1mb'}));
+app.use('/api/auth/login',rateLimit({windowMs:15*60*1000,limit:12,standardHeaders:true,legacyHeaders:false,message:{success:false,message:'Juda koʻp urinish. Birozdan soʻng qayta urinib koʻring.',data:null,meta:{}}}));
+app.get('/api/health',(req,res)=>res.json({success:true,message:'Smart Warehouse API ishlayapti',data:{status:'ok',time:new Date().toISOString()},meta:{}}));
+app.post('/api/telegram/webhook',(req,res,next)=>{if(config.telegramMode!=='webhook'||!config.telegramWebhookSecret||req.get('x-telegram-bot-api-secret-token')!==config.telegramWebhookSecret)return res.status(401).json({success:false,message:'Webhook tasdigʻi notoʻgʻri',data:null,meta:{}});try{processTelegramUpdate(req.body);res.sendStatus(200);}catch(e){next(e);}});
+app.use('/api/auth',authRoutes);app.use('/api',apiRoutes);app.use(notFoundHandler);app.use(errorHandler);
