@@ -1,6 +1,9 @@
 node_modules/
 dist/
 .env
+.env.*
+!.env.example
+!**/.env.example
 server/data/db.json
 server/data/*.tmp
 server/backups/*
